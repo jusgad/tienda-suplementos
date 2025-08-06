@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { mockProducts } from '@/lib/mockData'
+import ContentManager from './ContentManager'
 
-type AdminView = 'dashboard' | 'products' | 'orders' | 'users'
+type AdminView = 'dashboard' | 'products' | 'orders' | 'users' | 'content'
 
 export default function AdminDashboard() {
 	const [activeView, setActiveView] = useState<AdminView>('dashboard')
@@ -33,6 +34,7 @@ export default function AdminDashboard() {
 
 	const menuItems = [
 		{ id: 'dashboard', label: 'Dashboard', icon: '📊' },
+		{ id: 'content', label: 'Contenido Web', icon: '✨' },
 		{ id: 'products', label: 'Productos', icon: '📦' },
 		{ id: 'orders', label: 'Pedidos', icon: '🛒' },
 		{ id: 'users', label: 'Usuarios', icon: '👥' },
@@ -395,6 +397,7 @@ export default function AdminDashboard() {
 	const renderContent = () => {
 		switch (activeView) {
 			case 'dashboard': return renderDashboard()
+			case 'content': return <ContentManager />
 			case 'products': return renderProducts()
 			case 'orders': return renderOrders()
 			case 'users': return renderUsers()
@@ -421,7 +424,7 @@ export default function AdminDashboard() {
 								onClick={() => setActiveView(item.id as AdminView)}
 								className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
 									activeView === item.id
-										? 'bg-blue-100 text-blue-800 font-medium'
+										? 'bg-primary-100 text-primary-800 font-medium'
 										: 'text-neutral-600 hover:bg-neutral-100'
 								}`}
 							>

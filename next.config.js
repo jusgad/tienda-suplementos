@@ -68,11 +68,6 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/admin',
-        destination: '/admin/dashboard',
-        permanent: true,
-      },
-      {
         source: '/profile',
         destination: '/perfil',
         permanent: true,
@@ -98,6 +93,15 @@ const nextConfig = {
 
   // Configuración de Webpack para optimizaciones
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Fallback para globals en el cliente
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        global: false,
+        Buffer: false,
+      }
+    }
+
     // Optimizaciones para producción
     if (!dev) {
       config.optimization.splitChunks = {
@@ -132,9 +136,6 @@ const nextConfig = {
 
     return config
   },
-
-  // Configuración de salida para Amplify
-  output: 'standalone',
   
   // Configuración de transpilación
   transpilePackages: ['@aws-sdk'],

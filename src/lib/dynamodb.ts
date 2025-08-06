@@ -95,7 +95,7 @@ export class DynamoDBService {
 	}
 
 	static async updateUser(userId: string, updates: Partial<User>): Promise<User> {
-		const updateExpression = []
+		const updateExpression: string[] = []
 		const expressionAttributeValues: any = {}
 		const expressionAttributeNames: any = {}
 
@@ -280,7 +280,7 @@ export class DynamoDBService {
 	}
 
 	static async updateConsumptionRecord(recordId: string, updates: Partial<ConsumptionRecord>): Promise<ConsumptionRecord> {
-		const updateExpression = []
+		const updateExpression: string[] = []
 		const expressionAttributeValues: any = {}
 
 		Object.entries(updates).forEach(([key, value]) => {

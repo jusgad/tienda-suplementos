@@ -1,6 +1,6 @@
 declare global {
 	interface Window {
-		gtag: (command: string, targetId: string, config?: any) => void
+		gtag: (...args: any[]) => void
 		dataLayer: any[]
 	}
 }
@@ -9,7 +9,7 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export const gtag = (...args: any[]) => {
 	if (typeof window !== 'undefined' && window.gtag) {
-		window.gtag(...args)
+		window.gtag(...(args as [any, ...any[]]))
 	}
 }
 

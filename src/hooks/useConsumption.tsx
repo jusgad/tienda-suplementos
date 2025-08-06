@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { ConsumptionRecord, Product } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { mockProducts } from '@/lib/mockData'
@@ -109,17 +109,17 @@ export function ConsumptionProvider({ children }: { children: ReactNode }) {
 		return records.filter(record => record.isActive)
 	}
 
-	const getProductsNeedingReplenishment = () => {
+	const getProductsNeedingReplenishment = useCallback(() => {
 		const today = new Date()
 		return records.filter(record => 
 			record.isActive && 
 			record.replenishmentDate && 
 			record.replenishmentDate <= today
 		)
-	}
+	}, [records])
 
 	// Función para enviar notificaciones de reposición
-	const sendReplenishmentNotifications = async () => {
+	const sendReplenishmentNotifications = useCallback(async () => {
 		if (!user) return
 
 		const needingReplenishment = getProductsNeedingReplenishment()
@@ -149,7 +149,7 @@ export function ConsumptionProvider({ children }: { children: ReactNode }) {
 				console.error('Error sending replenishment notification:', error)
 			}
 		}
-	}
+	}, [user, getProductsNeedingReplenishment])
 
 	const markAsReplenished = (recordId: string, newQuantity: number) => {
 		setRecords(prev => prev.map(record => {
@@ -186,7 +186,7 @@ export function ConsumptionProvider({ children }: { children: ReactNode }) {
 
 			return () => clearInterval(interval)
 		}
-	}, [user, records])
+	}, [user, records, sendReplenishmentNotifications])
 
 	const value: ConsumptionContextType = {
 		records,

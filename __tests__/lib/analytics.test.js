@@ -36,8 +36,12 @@ describe('AnalyticsService', () => {
   beforeEach(() => {
     // Limpiar mocks antes de cada test
     mockGtag.mockClear();
-    global.document.createElement.mockClear();
-    global.document.head.appendChild.mockClear();
+    if (global.document.createElement.mockClear) {
+      global.document.createElement.mockClear();
+    }
+    if (global.document.head.appendChild.mockClear) {
+      global.document.head.appendChild.mockClear();
+    }
     
     // Reset initialization state
     AnalyticsService.isInitialized = false;

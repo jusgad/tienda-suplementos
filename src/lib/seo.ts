@@ -181,7 +181,7 @@ export function generateProductMetadata(product: {
       'nutrición',
     ],
     openGraph: {
-      type: 'product',
+      type: 'website',
       url,
       title,
       description,

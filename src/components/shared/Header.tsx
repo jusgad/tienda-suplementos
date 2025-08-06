@@ -22,12 +22,12 @@ export default function Header() {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
 					<div className="flex items-center">
-						<Link href="/" className="text-2xl font-bold text-primary-600">
-							WellnessSupplements
+						<Link href="/" className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+							Siente-te bien
 						</Link>
 					</div>
 					
-					<nav className="hidden md:flex space-x-8">
+					<nav className="hidden md:flex space-x-8" role="navigation" aria-label="Navegación principal">
 						<Link 
 							href="/" 
 							className="text-neutral-600 hover:text-primary-600 transition-colors"
@@ -72,6 +72,7 @@ export default function Header() {
 									whileTap={{ scale: 0.95 }}
 									onClick={toggleCart}
 									className="relative text-neutral-600 hover:text-primary-600 transition-colors"
+									aria-label={`Carrito de compras${itemCount > 0 ? ` (${itemCount} ${itemCount === 1 ? 'producto' : 'productos'})` : ' vacío'}`}
 								>
 									<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6" />
@@ -98,6 +99,7 @@ export default function Header() {
 									whileTap={{ scale: 0.95 }}
 									onClick={toggleCart}
 									className="relative text-neutral-600 hover:text-primary-600 transition-colors"
+									aria-label={`Carrito de compras${itemCount > 0 ? ` (${itemCount} ${itemCount === 1 ? 'producto' : 'productos'})` : ' vacío'}`}
 								>
 									<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6" />

@@ -36,7 +36,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: '/icon-512x512.png',
         sizes: '512x512',
         type: 'image/png',
-        purpose: 'maskable any'
+        purpose: 'any'
+      },
+      {
+        src: '/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable'
       }
     ],
     
@@ -101,10 +107,6 @@ export default function manifest(): MetadataRoute.Manifest {
       }
     ],
     
-    prefer_related_applications: false,
-    
-    edge_side_panel: {
-      preferred_width: 400
-    }
+    prefer_related_applications: false
   }
 }

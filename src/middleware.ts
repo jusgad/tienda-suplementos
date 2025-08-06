@@ -25,9 +25,9 @@ const ADMIN_ROUTES = [
 	'/api/fba'
 ]
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
-	const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+	const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
 
 	// ========== RATE LIMITING ==========
 	if (!SecurityService.checkRateLimit(ip, 100, 60000)) { // 100 requests per minute
@@ -84,7 +84,7 @@ export function middleware(request: NextRequest) {
 
 	let user = null
 	if (token) {
-		user = SecurityService.verifyToken(token)
+		user = await SecurityService.verifyToken(token)
 	}
 
 	// ========== ROUTE PROTECTION ==========
