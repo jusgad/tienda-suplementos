@@ -54,22 +54,23 @@ export default function ProductCatalog() {
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			{/* Header */}
-			<div className="mb-8">
+			<div className="mb-8 text-center">
 				<motion.h1
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5 }}
-					className="text-3xl font-bold text-neutral-800 mb-4"
+					className="text-4xl md:text-5xl font-bold mb-4"
 				>
-					Catálogo de Productos
+					<span className="text-primary-600">Catálogo</span>{' '}
+					<span className="text-secondary-600">Natural</span>
 				</motion.h1>
 				<motion.p
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.1 }}
-					className="text-lg text-neutral-600 mb-6"
+					className="text-xl text-neutral-600 mb-8 max-w-2xl mx-auto"
 				>
-					Descubre nuestra selección de suplementos de alta calidad
+					Descubre nuestra colección curada de suplementos premium para tu bienestar integral
 				</motion.p>
 
 				{/* Search Bar */}
@@ -77,18 +78,18 @@ export default function ProductCatalog() {
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.2 }}
-					className="relative max-w-md"
+					className="relative max-w-lg mx-auto"
 				>
 					<input
 						type="text"
-						placeholder="Buscar productos..."
+						placeholder="Buscar por nombre, ingrediente o beneficio..."
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
-						className="w-full input-field pl-10"
+						className="w-full pl-12 pr-4 py-4 border-2 border-primary-200 rounded-full text-neutral-700 placeholder-neutral-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 shadow-lg"
 					/>
-					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+					<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 						<svg
-							className="h-5 w-5 text-neutral-400"
+							className="h-6 w-6 text-primary-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"

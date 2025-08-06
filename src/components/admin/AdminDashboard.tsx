@@ -406,30 +406,31 @@ export default function AdminDashboard() {
 	}
 
 	return (
-		<div className="min-h-screen bg-neutral-100">
+		<div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
 			<div className="flex">
 				{/* Sidebar */}
-				<div className="w-64 bg-white shadow-lg min-h-screen">
-					<div className="p-6 border-b border-neutral-200">
-						<h1 className="text-xl font-bold text-neutral-800">
-							Panel Admin
+				<div className="w-64 bg-white shadow-xl min-h-screen border-r border-primary-100">
+					<div className="p-6 border-b border-primary-100 bg-gradient-to-r from-primary-500 to-secondary-500">
+						<h1 className="text-2xl font-bold text-white">
+							✨ Admin
 						</h1>
+						<p className="text-primary-100 text-sm mt-1">Siente-te bien</p>
 					</div>
 					<nav className="p-4 space-y-2">
 						{menuItems.map((item) => (
 							<motion.button
 								key={item.id}
-								whileHover={{ scale: 1.02 }}
+								whileHover={{ scale: 1.02, x: 4 }}
 								whileTap={{ scale: 0.98 }}
 								onClick={() => setActiveView(item.id as AdminView)}
-								className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+								className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-300 ${
 									activeView === item.id
-										? 'bg-primary-100 text-primary-800 font-medium'
-										: 'text-neutral-600 hover:bg-neutral-100'
+										? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium shadow-lg'
+										: 'text-neutral-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-secondary-50 hover:text-primary-700'
 								}`}
 							>
 								<span className="mr-3 text-xl">{item.icon}</span>
-								{item.label}
+								<span className="font-medium">{item.label}</span>
 							</motion.button>
 						))}
 					</nav>

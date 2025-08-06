@@ -20,39 +20,53 @@ export default function ProductCard({ product }: ProductCardProps) {
 
 	return (
 		<motion.div
-			whileHover={{ scale: 1.02, y: -5 }}
-			transition={{ duration: 0.2 }}
-			className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-neutral-200 overflow-hidden"
+			whileHover={{ scale: 1.03, y: -8 }}
+			transition={{ duration: 0.3, ease: "easeOut" }}
+			className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-primary-100 hover:border-primary-300 overflow-hidden group"
 		>
 			<Link href={`/productos/${product.id}`}>
 				<div className="relative">
-					<div className="aspect-w-16 aspect-h-12 bg-neutral-100">
-						{/* Placeholder for product image */}
-						<div className="w-full h-48 bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center">
-							<div className="text-primary-600 text-4xl font-bold">
-								{product.name.charAt(0)}
-							</div>
+					<div className="aspect-w-16 aspect-h-12 bg-gradient-to-br from-brand-wellness-blue via-white to-brand-fresh-green">
+						<div className="w-full h-56 bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center relative overflow-hidden">
+							<div className="absolute inset-0 bg-gradient-to-br from-primary-100/30 to-secondary-100/30"></div>
+							<motion.div
+								className="relative z-10 w-20 h-24 bg-gradient-to-b from-white to-primary-50 rounded-lg border-2 border-primary-200 shadow-lg flex items-center justify-center"
+								whileHover={{ rotate: [0, -5, 5, 0] }}
+								transition={{ duration: 0.5 }}
+							>
+								<div className="text-primary-600 text-2xl font-bold">
+									{product.name.charAt(0)}
+								</div>
+							</motion.div>
+							<div className="absolute top-2 left-2 w-3 h-3 bg-primary-300 rounded-full opacity-60"></div>
+							<div className="absolute bottom-4 right-4 w-2 h-2 bg-secondary-300 rounded-full opacity-40"></div>
+							<div className="absolute top-1/2 right-2 w-1.5 h-1.5 bg-primary-400 rounded-full opacity-50"></div>
 						</div>
 					</div>
 					{product.stock < 20 && (
-						<div className="absolute top-2 right-2 bg-accent-orange text-white px-2 py-1 text-xs rounded-full">
-							¡Últimas unidades!
-						</div>
+						<motion.div 
+							className="absolute top-3 right-3 bg-gradient-to-r from-orange-400 to-red-400 text-white px-3 py-1 text-xs font-medium rounded-full shadow-md"
+							initial={{ scale: 0 }}
+							animate={{ scale: 1 }}
+							transition={{ delay: 0.2, type: "spring" }}
+						>
+							¡Últimas!
+						</motion.div>
 					)}
 				</div>
 
-				<div className="p-4">
-					<div className="mb-2">
-						<span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
+				<div className="p-6">
+					<div className="mb-3">
+						<span className="inline-block bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-xs font-medium px-3 py-1 rounded-full">
 							{product.category}
 						</span>
 					</div>
 
-					<h3 className="text-lg font-semibold text-neutral-800 mb-2 line-clamp-2">
+					<h3 className="text-xl font-bold text-neutral-800 mb-3 line-clamp-2 group-hover:text-primary-600 transition-colors">
 						{product.name}
 					</h3>
 
-					<p className="text-neutral-600 text-sm mb-3 line-clamp-2">
+					<p className="text-neutral-600 text-sm mb-4 line-clamp-3 leading-relaxed">
 						{product.description}
 					</p>
 
@@ -78,34 +92,34 @@ export default function ProductCard({ product }: ProductCardProps) {
 						</div>
 					</div>
 
-					<div className="flex items-center justify-between">
-						<div className="text-2xl font-bold text-primary-600">
+					<div className="flex items-center justify-between mb-4">
+						<div className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
 							{formatPrice(product.price)}
 						</div>
 						<motion.button
-							whileHover={{ scale: 1.05 }}
+							whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(34, 197, 94, 0.3)" }}
 							whileTap={{ scale: 0.95 }}
-							className="bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+							className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-lg"
 							onClick={(e) => {
 								e.preventDefault()
 								addItem(product, 1)
 							}}
 						>
-							Agregar
+							Agregar al carrito
 						</motion.button>
 					</div>
 
-					<div className="mt-3 flex flex-wrap gap-1">
+					<div className="flex flex-wrap gap-2">
 						{product.benefits.slice(0, 3).map((benefit, index) => (
 							<span
 								key={index}
-								className="inline-block bg-neutral-100 text-neutral-700 text-xs px-2 py-1 rounded"
+								className="inline-block bg-gradient-to-r from-primary-50 to-secondary-50 text-primary-700 text-xs font-medium px-3 py-1.5 rounded-full border border-primary-200"
 							>
 								{benefit}
 							</span>
 						))}
 						{product.benefits.length > 3 && (
-							<span className="inline-block text-neutral-500 text-xs px-2 py-1">
+							<span className="inline-block text-neutral-500 text-xs font-medium px-3 py-1.5 bg-neutral-100 rounded-full">
 								+{product.benefits.length - 3} más
 							</span>
 						)}
