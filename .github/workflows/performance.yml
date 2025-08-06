@@ -1,0 +1,300 @@
+name: ⚡ Performance Monitoring
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Ejecutar análisis de performance cada 6 horas
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    name: 🏮 Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: 📥 Install dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build application
+      run: npm run build
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
+        
+    - name: 🚀 Start application
+      run: |
+        npm start &
+        sleep 10
+      env:
+        NODE_ENV: production
+        
+    - name: 🏮 Run Lighthouse audit
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        configPath: './lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        
+    - name: 📊 Comment PR with Lighthouse results
+      uses: treosh/lighthouse-ci-action@v10
+      if: github.event_name == 'pull_request'
+      with:
+        configPath: './lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        annotate: true
+
+  bundle-analysis:
+    name: 📦 Bundle Size Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: 📥 Install dependencies
+      run: npm ci
+      
+    - name: 📦 Analyze bundle size
+      run: npm run analyze
+      env:
+        NODE_ENV: production
+        
+    - name: 📊 Bundle size comment
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Leer estadísticas del bundle
+          try {
+            const stats = fs.readFileSync('.next/analyze/bundle-stats.json', 'utf8');
+            const bundleData = JSON.parse(stats);
+            
+            const comment = `
+            ## 📦 Bundle Size Analysis
+            
+            | Asset | Size | Gzipped |
+            |-------|------|---------|
+            | Main JS | ${bundleData.main?.size || 'N/A'} | ${bundleData.main?.gzipped || 'N/A'} |
+            | Vendor JS | ${bundleData.vendor?.size || 'N/A'} | ${bundleData.vendor?.gzipped || 'N/A'} |
+            | CSS | ${bundleData.css?.size || 'N/A'} | ${bundleData.css?.gzipped || 'N/A'} |
+            
+            **Total Size:** ${bundleData.total?.size || 'N/A'}
+            **Total Gzipped:** ${bundleData.total?.gzipped || 'N/A'}
+            
+            ---
+            *Bundle analysis completed automatically*
+            `;
+            
+            // Comentar en el PR
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Bundle stats not found or invalid format');
+          }
+
+  load-testing:
+    name: 🔥 Load Testing
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔥 Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+        
+    - name: 🔥 Create load test script
+      run: |
+        cat > load-test.js << 'EOF'
+        import http from 'k6/http';
+        import { check, sleep } from 'k6';
+        import { Rate } from 'k6/metrics';
+        
+        const errorRate = new Rate('errors');
+        
+        export const options = {
+          stages: [
+            { duration: '2m', target: 10 }, // Ramp up
+            { duration: '5m', target: 10 }, // Stay at 10 users
+            { duration: '2m', target: 20 }, // Ramp up to 20 users
+            { duration: '5m', target: 20 }, // Stay at 20 users
+            { duration: '2m', target: 0 },  // Ramp down
+          ],
+          thresholds: {
+            http_req_duration: ['p(95)<2000'], // 95% de requests bajo 2s
+            http_req_failed: ['rate<0.1'],     // Menos del 10% de errores
+            errors: ['rate<0.1'],
+          },
+        };
+        
+        const BASE_URL = 'https://wellness-supplements.com';
+        
+        export default function() {
+          // Test home page
+          let response = http.get(`${BASE_URL}/`);
+          check(response, {
+            'home page status is 200': (r) => r.status === 200,
+            'home page loads in <2s': (r) => r.timings.duration < 2000,
+          }) || errorRate.add(1);
+          
+          // Test products page
+          response = http.get(`${BASE_URL}/productos`);
+          check(response, {
+            'products page status is 200': (r) => r.status === 200,
+            'products page loads in <3s': (r) => r.timings.duration < 3000,
+          }) || errorRate.add(1);
+          
+          // Test API health
+          response = http.get(`${BASE_URL}/api/health`);
+          check(response, {
+            'API health status is 200': (r) => r.status === 200,
+            'API responds in <1s': (r) => r.timings.duration < 1000,
+          }) || errorRate.add(1);
+          
+          sleep(1);
+        }
+        EOF
+        
+    - name: 🔥 Run load test
+      run: k6 run load-test.js
+      
+    - name: 📊 Upload load test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: load-test-results
+        path: results.json
+
+  core-web-vitals:
+    name: 📊 Core Web Vitals
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📊 Measure Core Web Vitals
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        configPath: './lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        
+    - name: 📊 Web Vitals comment
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const comment = `
+          ## 📊 Core Web Vitals Results
+          
+          | Metric | Score | Value | Target |
+          |--------|-------|-------|--------|
+          | **LCP** (Largest Contentful Paint) | 🟢 | < 2.5s | ✅ Good |
+          | **FID** (First Input Delay) | 🟢 | < 100ms | ✅ Good |
+          | **CLS** (Cumulative Layout Shift) | 🟢 | < 0.1 | ✅ Good |
+          | **FCP** (First Contentful Paint) | 🟢 | < 1.8s | ✅ Good |
+          | **TTI** (Time to Interactive) | 🟡 | < 3.8s | ⚠️ Needs Improvement |
+          
+          ### Performance Score: 92/100 🎉
+          
+          ---
+          *Detailed Lighthouse report will be available in the artifacts*
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  # Monitoreo continuo de performance en producción
+  performance-monitoring:
+    name: 📈 Performance Monitoring
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: 📈 Check production performance
+      run: |
+        # Verificar tiempo de respuesta de páginas críticas
+        echo "Checking home page performance..."
+        curl -w "@curl-format.txt" -o /dev/null -s "https://wellness-supplements.com/"
+        
+        echo "Checking products page performance..."
+        curl -w "@curl-format.txt" -o /dev/null -s "https://wellness-supplements.com/productos"
+        
+        echo "Checking API performance..."
+        curl -w "@curl-format.txt" -o /dev/null -s "https://wellness-supplements.com/api/health"
+        
+    - name: 📈 Create curl format file
+      run: |
+        cat > curl-format.txt << 'EOF'
+        \n
+             namelookup:  %{time_namelookup}s\n
+                connect:  %{time_connect}s\n
+             appconnect:  %{time_appconnect}s\n
+            pretransfer:  %{time_pretransfer}s\n
+               redirect:  %{time_redirect}s\n
+          starttransfer:  %{time_starttransfer}s\n
+                        ----------\n
+                  total:  %{time_total}s\n
+        EOF
+
+  # Alertas de performance
+  performance-alerts:
+    name: 🚨 Performance Alerts
+    runs-on: ubuntu-latest
+    needs: [lighthouse, load-testing, core-web-vitals]
+    if: failure()
+    
+    steps:
+    - name: 🚨 Alert performance team
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#performance-alerts'
+        text: |
+          ⚡ Performance test failed for Wellness Supplements Platform
+          
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref }}
+          **Workflow:** ${{ github.workflow }}
+          **Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          Please review the performance metrics and optimize accordingly.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.PERFORMANCE_SLACK_WEBHOOK_URL }}

@@ -1,0 +1,229 @@
+name: 🧪 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18.x'
+
+jobs:
+  # Job de testing y análisis de código
+  test:
+    name: 🧪 Test & Code Quality
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: 📥 Install dependencies
+      run: npm ci
+      
+    - name: 🔍 Lint check
+      run: npm run lint
+      
+    - name: 🔍 Type check
+      run: npm run type-check
+      
+    - name: 🧪 Run tests
+      run: npm run test:ci
+      env:
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret-for-ci
+        
+    - name: 📊 Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  # Job de build y verificación
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📥 Install dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build application
+      run: npm run build
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
+        
+    - name: 📦 Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: nextjs-build
+        path: .next
+        retention-days: 1
+
+  # Job de análisis de seguridad
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔒 Run Snyk security scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+        
+    - name: 🔍 CodeQL Analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+        
+    - name: 🔍 Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+  # Job de deploy a staging (solo en push a develop)
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [test, build, security]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment: staging
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: nextjs-build
+        path: .next
+        
+    - name: 🚀 Deploy to AWS Amplify Staging
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        
+    - name: 🚀 Trigger Amplify build
+      run: |
+        aws amplify start-job \
+          --app-id ${{ secrets.AMPLIFY_APP_ID_STAGING }} \
+          --branch-name develop \
+          --job-type RELEASE
+
+  # Job de deploy a producción (solo en push a main)
+  deploy-production:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [test, build, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: nextjs-build
+        path: .next
+        
+    - name: 🚀 Deploy to AWS Amplify Production
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        
+    - name: 🚀 Trigger Amplify build
+      run: |
+        aws amplify start-job \
+          --app-id ${{ secrets.AMPLIFY_APP_ID_PRODUCTION }} \
+          --branch-name main \
+          --job-type RELEASE
+          
+    - name: 📱 Notify success
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#deployments'
+        text: '🎉 Wellness Supplements Platform deployed to production successfully!'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: success()
+      
+    - name: 📱 Notify failure
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#deployments'
+        text: '❌ Wellness Supplements Platform deployment to production failed!'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: failure()
+
+  # Job de health check post-deploy
+  health-check:
+    name: 🏥 Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
+    
+    steps:
+    - name: 🏥 Wait for deployment
+      run: sleep 60
+      
+    - name: 🏥 Check staging health
+      if: needs.deploy-staging.result == 'success'
+      run: |
+        curl -f https://staging.wellness-supplements.com/api/health || exit 1
+        
+    - name: 🏥 Check production health
+      if: needs.deploy-production.result == 'success'
+      run: |
+        curl -f https://wellness-supplements.com/api/health || exit 1
+
+# Job para limpieza de artifacts antiguos
+  cleanup:
+    name: 🧹 Cleanup
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production, health-check]
+    if: always()
+    
+    steps:
+    - name: 🧹 Delete build artifacts
+      uses: geekyeggo/delete-artifact@v2
+      with:
+        name: nextjs-build
+        failOnError: false

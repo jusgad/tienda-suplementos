@@ -1,0 +1,56 @@
+Contact: security@wellness-supplements.com
+Expires: 2025-12-31T23:59:59.000Z
+Encryption: https://wellness-supplements.com/pgp-key.txt
+Acknowledgments: https://wellness-supplements.com/security/hall-of-fame
+Policy: https://wellness-supplements.com/security/policy
+Hiring: https://wellness-supplements.com/careers
+
+# Wellness Supplements Platform Security Policy
+
+## Reporting Security Vulnerabilities
+
+We take the security of our platform seriously. If you discover a security vulnerability, 
+please report it to us as soon as possible.
+
+### How to Report
+- Email: security@wellness-supplements.com
+- Subject: [SECURITY] Brief description of the issue
+- Include: Steps to reproduce, impact assessment, and any relevant details
+
+### What to Include
+1. A detailed description of the vulnerability
+2. Steps to reproduce the issue
+3. Potential impact and severity assessment
+4. Any proof-of-concept code (if applicable)
+5. Your contact information for follow-up
+
+### Response Timeline
+- Acknowledgment: Within 24 hours
+- Initial assessment: Within 72 hours
+- Resolution timeline: Based on severity (Critical: 24-48h, High: 1-2 weeks)
+
+### Scope
+This security policy applies to:
+- wellness-supplements.com and all subdomains
+- Mobile applications
+- API endpoints
+- Third-party integrations
+
+### Out of Scope
+- Social engineering attacks
+- Physical attacks against our facilities
+- DoS/DDoS attacks
+- Issues in third-party services beyond our control
+
+### Responsible Disclosure
+We ask that you:
+- Give us reasonable time to address the issue before public disclosure
+- Avoid accessing or modifying user data without permission
+- Do not perform testing that could harm our users or services
+- Report vulnerabilities as soon as you discover them
+
+### Recognition
+We appreciate security researchers who help improve our platform's security.
+Qualified reports may be eligible for our Bug Bounty Program.
+
+Thank you for helping keep our users' data safe!

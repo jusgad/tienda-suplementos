@@ -1,0 +1,51 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+  customHeaders:
+    - pattern: '**'
+      headers:
+        - key: 'X-Frame-Options'
+          value: 'DENY'
+        - key: 'X-XSS-Protection'
+          value: '1; mode=block'
+        - key: 'X-Content-Type-Options'
+          value: 'nosniff'
+        - key: 'Referrer-Policy'
+          value: 'origin-when-cross-origin'
+        - key: 'Permissions-Policy'
+          value: 'camera=(), microphone=(), geolocation=()'
+        - key: 'Strict-Transport-Security'
+          value: 'max-age=31536000; includeSubDomains; preload'
+  rewrites:
+    - source: '/<*>'
+      target: '/index.html'
+      status: '200'
+    - source: '/api/<*>'
+      target: '/api/<*>'
+      status: '200'
+    - source: '/.well-known/security.txt'
+      target: '/security.txt'
+      status: '200'
+  redirects:
+    - source: '/admin'
+      target: '/admin/dashboard'
+      status: '301'
+  environment:
+    variables:
+      NODE_ENV: production
+      AMPLIFY_DIFF_DEPLOY: false
+      AMPLIFY_MONOREPO_APP_ROOT: wellness-supplements-platform
