@@ -19,7 +19,7 @@
 }
 
 body {
-	color: rgb(var(--foreground-rgb));
+	color: #000000;
 	background: linear-gradient(
 		135deg,
 		#f0fdf4 0%,
@@ -38,8 +38,23 @@ body {
 	
 	body {
 		background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 25%, #f0f9ff 75%, #ecfccb 100%);
-		color: #111827;
+		color: #000000;
 		line-height: 1.6;
+	}
+	
+	/* Force black text for all elements */
+	*, *::before, *::after {
+		color: #000000 !important;
+	}
+	
+	/* Exception for elements that should keep their colors */
+	.btn-primary, .btn-primary *, .btn-secondary, .btn-secondary * {
+		color: white !important;
+	}
+	
+	/* Exception for background gradients in text */
+	.bg-clip-text.text-transparent {
+		color: transparent !important;
 	}
 	
 	/* Custom scrollbar */
