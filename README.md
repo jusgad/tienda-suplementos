@@ -1,322 +1,418 @@
-# 🌿 Wellness Supplements Platform
+# 🏪 Vitality Store
 
-Una plataforma especializada de comercio electrónico para suplementos dietéticos que funciona como un "asesor digital de bienestar".
+> Tienda online de suplementos deportivos y de bienestar con arquitectura monolítica modular
 
-## 🚀 Características Principales
+[![CI/CD Pipeline](https://github.com/tu-usuario/vitality-store/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/tu-usuario/vitality-store/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-18%2B-brightgreen)](https://nodejs.org/)
+[![React Version](https://img.shields.io/badge/react-18-blue)](https://reactjs.org/)
 
-### ✨ Funcionalidades Core
-- **Sistema de Autenticación**: AWS Cognito con 2FA
-- **Catálogo de Productos**: Filtros avanzados y búsqueda inteligente
-- **Cuestionario Personalizado**: Recomendaciones basadas en perfil de salud
-- **Carrito y Pagos**: Integración completa con Stripe
-- **Seguimiento de Consumo**: Tracking automático con alertas de reposición
-- **Panel de Administración**: Gestión completa de productos y pedidos
-- **Notificaciones**: Amazon SNS para emails y SMS
-- **Logística**: Integración con Amazon FBA
+Una plataforma de comercio electrónico completa, escalable y segura para suplementos deportivos y de bienestar, construida siguiendo una **arquitectura monolítica modular** con separación clara entre frontend y backend.
 
-### 🔒 Seguridad
-- JWT tokens con expiración automática
-- Rate limiting y protección IP
-- Headers de seguridad (CSP, HSTS, XSS Protection)
-- Autenticación de dos factores (2FA)
-- Cifrado de datos sensibles
-- Auditoría de eventos de seguridad
+## 🌟 Características Principales
 
-### 📊 Analytics y Monitoreo
-- Google Analytics 4 con eventos personalizados
-- Tracking de conversiones e-commerce
-- Métricas de bienestar específicas
-- Health check endpoints
-- Logging de seguridad
+### 🛍️ Funcionalidades E-commerce
+- **Catálogo de productos** con búsqueda avanzada y filtros
+- **Carrito de compras** persistente y optimizado
+- **Checkout seguro** con integración Stripe
+- **Gestión de pedidos** y seguimiento
+- **Sistema de reseñas** y calificaciones
 
-## 🛠️ Stack Tecnológico
+### 🎨 Experiencia de Usuario
+- **Página de inicio** con banner "Fuel Your Potential"
+- **Tienda** con categorías (Vitamins, Minerals, Herbal, Sports Nutrition)
+- **Detalle de producto** con información nutricional e ingredientes
+- **Blog "The Vitality Hub"** con contenido categorizado
+- **Página de contacto** con formulario y mapa
+- **Esquema de colores** verde oscuro/negro con acentos naranja
 
-- **Frontend**: Next.js 15, React 18, TypeScript
-- **UI/UX**: Tailwind CSS, Framer Motion
-- **Autenticación**: AWS Cognito
-- **Base de Datos**: Amazon DynamoDB
-- **Pagos**: Stripe Elements
-- **Notificaciones**: Amazon SNS
-- **Logística**: Amazon FBA API
-- **Analytics**: Google Analytics 4
-- **Hosting**: AWS Amplify
+### ⚙️ Panel de Administración
+- **Dashboard** con métricas de ventas
+- **Gestión de productos** CRUD completo
+- **Gestión de usuarios** y roles
+- **Gestión de pedidos** y estados
+- **Analytics** y reportes
 
-## 📦 Instalación
+## 🏗️ Arquitectura del Sistema
+
+```
+vitality-store/
+│
+├── 📁 frontend/              # React Application
+│   ├── 📁 src/
+│   │   ├── 📁 components/    # Componentes organizados por funcionalidad
+│   │   ├── 📁 pages/         # Páginas principales
+│   │   ├── 📁 hooks/         # Custom hooks
+│   │   ├── 📁 context/       # Context API providers
+│   │   ├── 📁 services/      # Servicios de API
+│   │   └── 📁 utils/         # Utilidades
+│   └── 📁 public/            # Assets estáticos
+│
+├── 📁 backend/               # Node.js/Express API con DDD
+│   ├── 📁 src/
+│   │   ├── 📁 domain/        # Entidades y lógica de negocio
+│   │   ├── 📁 application/   # Casos de uso
+│   │   ├── 📁 infrastructure/# DB, HTTP, servicios externos
+│   │   └── main.js           # Punto de entrada
+│   └── 📁 tests/             # Tests unitarios, integración, E2E
+│
+├── 📁 database/              # Migraciones y seeds SQL
+├── 📁 docker/                # Configuraciones Docker
+├── 📁 docs/                  # Documentación completa
+├── 📁 scripts/               # Scripts de automatización
+└── 📁 .github/workflows/     # CI/CD pipelines
+```
+
+## 🚀 Stack Tecnológico
+
+### Frontend
+- **Framework**: React 18
+- **Routing**: React Router DOM 6
+- **Estado**: Context API
+- **Estilos**: Tailwind CSS 3
+- **HTTP Client**: Axios
+- **Build**: Create React App
+
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Arquitectura**: Domain-Driven Design (DDD)
+- **Autenticación**: JWT + bcrypt
+- **Validación**: Joi
+- **Base de Datos**: PostgreSQL 15
+- **Cache**: Redis 7
+
+### DevOps & Testing
+- **Contenedores**: Docker & Docker Compose
+- **CI/CD**: GitHub Actions
+- **Testing**: Jest (70%+ cobertura)
+- **Linting**: ESLint + Prettier
+
+## 🚀 Inicio Rápido
 
 ### Prerrequisitos
-- Node.js 18+ 
-- AWS Account con permisos para Cognito, DynamoDB, SNS
-- Stripe Account
-- Google Analytics 4 Property
 
-### Configuración Local
-
-1. **Clonar el repositorio**
-   ```bash
-   git clone <repository-url>
-   cd wellness-supplements-platform
-   ```
-
-2. **Instalar dependencias**
-   ```bash
-   npm install
-   ```
-
-3. **Configurar variables de entorno**
-   ```bash
-   cp .env.example .env.local
-   # Editar .env.local con tus credenciales
-   ```
-
-4. **Ejecutar en desarrollo**
-   ```bash
-   npm run dev
-   ```
-
-5. **Abrir en navegador**
-   ```
-   http://localhost:3000
-   ```
-
-## ⚙️ Configuración AWS
-
-### 1. AWS Cognito
 ```bash
-# Crear User Pool
-aws cognito-idp create-user-pool \
-  --pool-name "wellness-user-pool" \
-  --auto-verified-attributes email \
-  --mfa-configuration OPTIONAL
-
-# Crear Identity Pool
-aws cognito-identity create-identity-pool \
-  --identity-pool-name "wellness-identity-pool" \
-  --allow-unauthenticated-identities
+node --version  # 18+
+docker --version
+docker-compose --version
 ```
 
-### 2. DynamoDB
+### Instalación Automática
+
 ```bash
-# Crear tablas requeridas
-aws dynamodb create-table \
-  --table-name wellness-users \
-  --attribute-definitions AttributeName=id,AttributeType=S \
-  --key-schema AttributeName=id,KeyType=HASH \
-  --billing-mode PAY_PER_REQUEST
+# Clona el repositorio
+git clone https://github.com/tu-usuario/vitality-store.git
+cd vitality-store
 
-# Repetir para: wellness-products, wellness-orders, 
-# wellness-consumption, wellness-questionnaire-results
+# Ejecuta el script de configuración
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ```
 
-### 3. Amazon SNS
+### Instalación Manual
+
+1. **Instalar dependencias**
 ```bash
-# Crear tópico para notificaciones
-aws sns create-topic --name wellness-notifications
+npm run install:all
 ```
 
-## 🚀 Despliegue con AWS Amplify
-
-### Configuración Automática
-
-1. **Conectar repositorio a Amplify**
-   - Ir a AWS Amplify Console
-   - Conectar tu repositorio Git
-   - Amplify detectará automáticamente `amplify.yml`
-
-2. **Variables de entorno en Amplify**
-   ```
-   AWS_REGION=us-east-1
-   COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
-   COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
-   STRIPE_PUBLISHABLE_KEY=pk_live_xxxxxxxxxx
-   NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-   ```
-
-3. **Dominio personalizado** (opcional)
-   - Configurar dominio en Amplify Console
-   - SSL automático con certificados ACM
-
-### Build Commands
-```yaml
-# amplify.yml ya configurado con:
-- npm install
-- npm run build
-- Optimizaciones de caché
-- Headers de seguridad
-- Redirects automáticos
+2. **Configurar variables de entorno**
+```bash
+# Backend
+cp backend/.env.example backend/.env
+# Frontend  
+cp frontend/.env.example frontend/.env
 ```
 
-## 🏗️ Estructura del Proyecto
-
-```
-src/
-├── app/                    # App Router (Next.js 15)
-│   ├── admin/             # Panel de administración
-│   ├── api/               # API Routes
-│   ├── checkout/          # Proceso de compra
-│   ├── productos/         # Catálogo de productos
-│   ├── cuestionario/      # Cuestionario personalizado
-│   └── seguimiento/       # Tracking de consumo
-├── components/            # Componentes React
-│   ├── admin/            # Componentes de admin
-│   ├── auth/             # Autenticación
-│   ├── checkout/         # Proceso de pago
-│   ├── products/         # Catálogo
-│   ├── questionnaire/    # Cuestionario
-│   └── shared/           # Componentes compartidos
-├── hooks/                # React Hooks personalizados
-├── lib/                  # Servicios y utilidades
-├── types/                # Definiciones TypeScript
-└── middleware.ts         # Middleware de seguridad
+3. **Iniciar base de datos**
+```bash
+docker-compose -f docker-compose.dev.yml up -d postgres redis
 ```
 
-## 🔧 Scripts Disponibles
+4. **Ejecutar migraciones**
+```bash
+npm run migrate
+npm run seed
+```
+
+5. **Iniciar desarrollo**
+```bash
+npm run dev
+```
+
+### URLs de Acceso
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:3001/api
+- **Health Check**: http://localhost:3001/api/health
+
+## 📋 Scripts Disponibles
 
 ```bash
 # Desarrollo
-npm run dev              # Servidor de desarrollo
-npm run build           # Build de producción
-npm run start           # Servidor de producción
-npm run lint            # Linting con ESLint
-npm run type-check      # Verificación de tipos
+npm run dev                    # Inicia frontend y backend
+npm run dev:frontend          # Solo frontend
+npm run dev:backend           # Solo backend
 
-# Testing (configurar según necesidades)
-npm run test            # Tests unitarios
-npm run test:e2e        # Tests end-to-end
+# Build
+npm run build                 # Build completo
+npm run build:frontend        # Build frontend
+npm run build:backend         # Build backend
+
+# Testing
+npm run test                  # Todos los tests
+npm run test:unit            # Tests unitarios
+npm run test:integration     # Tests de integración
+npm run test:e2e             # Tests end-to-end
+npm run test:coverage        # Cobertura de tests
+
+# Base de datos
+npm run migrate              # Ejecutar migraciones
+npm run seed                 # Ejecutar seeds
+
+# Docker
+npm run docker:build         # Build imágenes
+npm run docker:dev           # Entorno desarrollo
+npm run docker:prod          # Entorno producción
+
+# Utilidades
+npm run setup                # Configuración inicial
+npm run deploy              # Deploy a producción
+npm run backup              # Backup de base de datos
 ```
 
-## 📋 API Endpoints
+## 🎨 Páginas Implementadas
 
-### Autenticación
-- `POST /api/auth/signup` - Registro de usuario
-- `POST /api/auth/signin` - Inicio de sesión
-- `POST /api/auth/signout` - Cerrar sesión
-- `POST /api/auth/2fa/setup` - Configurar 2FA
-- `POST /api/auth/2fa/verify` - Verificar 2FA
+### 🏠 Homepage (`/`)
+- Header con logo "Vitality Supplements" y navegación
+- Banner principal "Fuel Your Potential"
+- Sección "Featured Products"
+- "Our Mission" y "Customer Testimonials"
+- Newsletter signup
 
-### Usuarios
-- `GET /api/user/profile` - Obtener perfil
-- `PUT /api/user/profile` - Actualizar perfil
-- `GET /api/user/orders` - Historial de pedidos
+### 🛒 Shop Page (`/shop`)
+- Filtros por categorías (Vitamins, Minerals, Herbal, etc.)
+- Grid de productos con imagen, nombre y precio
+- Sistema de paginación y búsqueda
+- Ordenamiento por precio, rating, fecha
 
-### Productos
-- `GET /api/products` - Listar productos
-- `GET /api/products/[id]` - Producto específico
-- `GET /api/products/category/[category]` - Por categoría
+### 📄 Product Detail (`/product/:id`)
+- Galería de imágenes del producto
+- Información detallada: overview, ingredientes, especificaciones
+- Sistema de reviews con calificaciones
+- Productos relacionados
+- Botón "Add to Cart"
 
-### Pedidos
-- `POST /api/orders` - Crear pedido
-- `GET /api/orders/[id]` - Obtener pedido
-- `PUT /api/orders/[id]/status` - Actualizar estado
+### 📝 Blog Page (`/blog`)
+- "The Vitality Hub Blog" con búsqueda
+- Categorías: Featured, Nutrition, Training, Supplements, Wellness
+- Grid de artículos con miniaturas
+- Sistema de paginación
 
-### Cuestionario
-- `POST /api/questionnaire/submit` - Enviar respuestas
-- `GET /api/questionnaire/results` - Obtener resultados
+### 📞 Contact Page (`/contact`)
+- Formulario de contacto (Name, Email, Subject, Message)
+- Información de contacto de la empresa
+- Mapa integrado de ubicación
 
-### Consumo
-- `POST /api/consumption` - Registrar consumo
-- `GET /api/consumption` - Historial de consumo
-- `PUT /api/consumption/[id]` - Actualizar registro
+### 🛒 Cart & Checkout
+- Carrito persistente con cálculo de totales
+- Proceso de checkout con validación
+- Integración con Stripe para pagos
+- Confirmación de orden
 
-### Admin (requiere permisos)
-- `GET /api/admin/dashboard` - Métricas del dashboard
-- `POST /api/admin/products` - Crear producto
-- `PUT /api/admin/products/[id]` - Actualizar producto
-- `GET /api/admin/orders` - Gestión de pedidos
+### 👤 User Pages
+- Login y registro de usuarios
+- Perfil de usuario editable
+- Historial de pedidos
+- Gestión de direcciones
 
-### Sistema
-- `GET /api/health` - Health check
-- `POST /api/webhooks/stripe` - Webhook de Stripe
+### 👨‍💼 Admin Panel
+- Dashboard con métricas
+- Gestión CRUD de productos
+- Gestión de usuarios y roles
+- Gestión de pedidos
+- Analytics y reportes
+
+## 🧪 Testing
+
+La aplicación cuenta con una suite completa de testing:
+
+### Estructura de Tests
+```
+backend/tests/
+├── unit/                     # Tests unitarios
+│   ├── domain/              # Entidades y value objects
+│   └── use-cases/           # Casos de uso
+├── integration/             # Tests de integración
+└── e2e/                     # Tests end-to-end
+
+frontend/tests/
+├── components/              # Tests de componentes
+├── hooks/                   # Tests de custom hooks
+└── pages/                   # Tests de páginas
+```
+
+### Cobertura de Pruebas
+- **Objetivo**: 70% mínimo de cobertura
+- **Tests unitarios**: Lógica de negocio y componentes
+- **Tests de integración**: API endpoints y flows
+- **Tests E2E**: Workflows completos de usuario
+
+```bash
+npm run test:coverage        # Ver reporte de cobertura
+```
+
+## 🚀 Deployment
+
+### Desarrollo con Docker
+
+```bash
+# Levantar entorno completo
+docker-compose -f docker-compose.dev.yml up
+
+# Solo servicios específicos
+docker-compose -f docker-compose.dev.yml up postgres redis
+```
+
+### Producción
+
+```bash
+# Build y deploy de producción
+docker-compose -f docker-compose.prod.yml up --build
+```
+
+### CI/CD Pipeline
+
+El proyecto incluye pipelines automatizados:
+
+- ✅ **Lint y type checking**
+- ✅ **Tests unitarios y de integración**
+- ✅ **Build y validation**
+- ✅ **Seguridad y vulnerabilidades**
+- ✅ **Deploy automático**
+
+## 📊 Funcionalidades Detalladas
+
+### 🔐 Autenticación y Seguridad
+- JWT tokens con expiración automática
+- Hashing seguro de contraseñas (bcrypt)
+- Middleware de autenticación
+- Rate limiting por IP
+- Headers de seguridad (Helmet.js)
+- Validación de entrada (Joi)
+
+### 🛍️ E-commerce Completo
+- Catálogo con búsqueda full-text
+- Filtros avanzados por múltiples criterios
+- Carrito persistente con session storage
+- Checkout con validación en tiempo real
+- Procesamiento de pagos con Stripe
+- Gestión de inventario automatizada
+
+### 📈 Analytics y Métricas
+- Dashboard con KPIs principales
+- Tracking de ventas y conversiones
+- Análisis de productos más vendidos
+- Métricas de usuarios activos
+- Reportes exportables
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crear feature branch (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit cambios (`git commit -m 'Agregar nueva funcionalidad'`)
+4. Push al branch (`git push origin feature/nueva-funcionalidad`)
+5. Crear Pull Request
+
+### Guidelines de Desarrollo
+
+- ✅ Seguir convenciones de ESLint
+- ✅ Escribir tests para nuevas funcionalidades
+- ✅ Mantener cobertura >70%
+- ✅ Documentar APIs con JSDoc
+- ✅ Seguir principios DDD en backend
+- ✅ Componentes React reutilizables
+
+## 📚 Documentación
+
+- 📖 [Arquitectura del Sistema](docs/ARCHITECTURE.md)
+- 📖 [API Documentation](docs/API.md)
+- 📖 [Deployment Guide](docs/DEPLOYMENT.md)
+- 📖 [Testing Guide](docs/TESTING.md)
+- 📖 [Contributing Guide](docs/CONTRIBUTING.md)
 
 ## 🔒 Seguridad
 
-### Configuración Implementada
-- **Headers de Seguridad**: CSP, HSTS, XSS Protection
-- **Rate Limiting**: 100 requests/minuto por IP
-- **Autenticación JWT**: Tokens con expiración
-- **2FA**: Códigos TOTP con backup codes
-- **Cifrado**: AES-256-GCM para datos sensibles
-- **Auditoría**: Logging de eventos de seguridad
+- ✅ Autenticación JWT segura
+- ✅ Validación de entrada estricta
+- ✅ Rate limiting configurado
+- ✅ Headers de seguridad (CSP, HSTS)
+- ✅ Sanitización de datos
+- ✅ Audit logs de acciones críticas
 
-### Variables Sensibles
-```bash
-# Nunca commitear en el repositorio:
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-- STRIPE_SECRET_KEY
-- JWT_SECRET
-- ENCRYPTION_KEY
-```
+## 📈 Performance
 
-## 📊 Monitoreo
-
-### Health Checks
-```bash
-# Verificar estado de la aplicación
-curl https://your-domain.com/api/health
-
-# Respuesta esperada:
-{
-  "status": "ok",
-  "services": {
-    "database": { "status": "healthy" },
-    "api": { "status": "healthy" }
-  }
-}
-```
-
-### Analytics
-- **Google Analytics 4**: Tracking automático de eventos
-- **Eventos E-commerce**: purchase, add_to_cart, view_item
-- **Eventos Custom**: questionnaire_complete, consumption_add
-- **Performance**: Core Web Vitals automático
+- ⚡ Lazy loading de componentes
+- ⚡ Code splitting automático
+- ⚡ Cache con Redis para consultas frecuentes
+- ⚡ Compresión gzip activada
+- ⚡ Índices optimizados en BD
+- ⚡ Connection pooling
 
 ## 🐛 Troubleshooting
 
 ### Problemas Comunes
 
-1. **Error de autenticación AWS**
-   ```bash
-   # Verificar credenciales
-   aws sts get-caller-identity
-   ```
+**Error de conexión a DB:**
+```bash
+docker-compose -f docker-compose.dev.yml up -d postgres
+npm run migrate
+```
 
-2. **Stripe webhook fallido**
-   ```bash
-   # Verificar endpoint en Stripe Dashboard
-   # URL: https://your-domain.com/api/webhooks/stripe
-   ```
+**Problemas con dependencias:**
+```bash
+npm run setup
+# o manualmente:
+rm -rf node_modules package-lock.json
+npm install
+```
 
-3. **Error de CORS**
-   ```bash
-   # Verificar headers en middleware.ts
-   # Añadir dominio a CSP si es necesario
-   ```
+**Cache de Docker:**
+```bash
+docker-compose down
+docker system prune -a
+npm run docker:build
+```
 
-4. **DynamoDB access denied**
-   ```bash
-   # Verificar permisos IAM
-   # Policy: AmazonDynamoDBFullAccess (desarrollo)
-   ```
+## 📞 Soporte y Contacto
 
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+- 🐛 **Issues**: [GitHub Issues](https://github.com/tu-usuario/vitality-store/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/tu-usuario/vitality-store/discussions)
+- 📧 **Email**: soporte@vitality-store.com
+- 📖 **Documentación**: [Wiki del Proyecto](https://github.com/tu-usuario/vitality-store/wiki)
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
+Este proyecto está bajo la Licencia MIT - ver [LICENSE](LICENSE) para más detalles.
 
-## 🆘 Soporte
+## 🙏 Agradecimientos
 
-Para soporte técnico:
-- 📧 Email: support@wellness-supplements.com
-- 📱 WhatsApp: +1-XXX-XXX-XXXX
-- 🎫 Issues: GitHub Issues
+- [React](https://reactjs.org/) - Biblioteca para interfaces de usuario
+- [Express.js](https://expressjs.com/) - Framework web para Node.js
+- [PostgreSQL](https://www.postgresql.org/) - Base de datos relacional
+- [Docker](https://www.docker.com/) - Plataforma de contenedores
+- [Tailwind CSS](https://tailwindcss.com/) - Framework de CSS
+- [Stripe](https://stripe.com/) - Procesamiento de pagos
 
 ---
 
-**🌿 Desarrollado con ❤️ para el bienestar digital**
+<div align="center">
+
+**⭐ ¡Si este proyecto te fue útil, considera darle una estrella! ⭐**
+
+[🐛 Reportar Bug](https://github.com/tu-usuario/vitality-store/issues) · [🚀 Solicitar Feature](https://github.com/tu-usuario/vitality-store/issues) · [🤝 Contribuir](CONTRIBUTING.md)
+
+**Hecho con ❤️ para la comunidad de desarrolladores**
+
+</div>

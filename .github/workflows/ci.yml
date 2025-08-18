@@ -1,62 +1,20 @@
-name: 🧪 CI/CD Pipeline
+name: 🧪 Vitality Store CI/CD
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 env:
-  NODE_VERSION: '18.x'
+  NODE_VERSION: '18'
+  POSTGRES_VERSION: '15'
 
 jobs:
-  # Job de testing y análisis de código
-  test:
-    name: 🧪 Test & Code Quality
+  # Frontend Tests
+  frontend-test:
+    name: 🧪 Frontend Tests
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-    
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-      
-    - name: 📦 Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: 📥 Install dependencies
-      run: npm ci
-      
-    - name: 🔍 Lint check
-      run: npm run lint
-      
-    - name: 🔍 Type check
-      run: npm run type-check
-      
-    - name: 🧪 Run tests
-      run: npm run test:ci
-      env:
-        NODE_ENV: test
-        JWT_SECRET: test-jwt-secret-for-ci
-        
-    - name: 📊 Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
-  # Job de build y verificación
-  build:
-    name: 🏗️ Build Application
-    runs-on: ubuntu-latest
-    needs: test
     
     steps:
     - name: 📥 Checkout code
@@ -67,21 +25,147 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
         
-    - name: 📥 Install dependencies
-      run: npm ci
+    - name: 📥 Install frontend dependencies
+      run: cd frontend && npm ci
       
-    - name: 🏗️ Build application
-      run: npm run build
-      env:
-        NODE_ENV: production
-        NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
+    - name: 🔍 Frontend lint check
+      run: cd frontend && npm run lint
+      
+    - name: 🔍 Frontend type check
+      run: cd frontend && npm run type-check
+      
+    - name: 🧪 Run frontend tests
+      run: cd frontend && npm run test:coverage
+      
+    - name: 📊 Upload frontend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+  # Backend Tests
+  backend-test:
+    name: 🧪 Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
         
-    - name: 📦 Upload build artifacts
+    - name: 📥 Install backend dependencies
+      run: cd backend && npm ci
+      
+    - name: 🔍 Backend lint check
+      run: cd backend && npm run lint
+      
+    - name: 🔍 Backend type check
+      run: cd backend && npm run type-check
+      
+    - name: 🏗️ Build backend
+      run: cd backend && npm run build
+      
+    - name: 🧪 Run backend tests
+      run: cd backend && npm run test:coverage
+      env:
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+        JWT_SECRET: test-secret
+        NODE_ENV: test
+        
+    - name: 📊 Upload backend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage/lcov.info
+        flags: backend
+        name: backend-coverage
+
+  # Build Frontend
+  build-frontend:
+    name: 🏗️ Build Frontend
+    runs-on: ubuntu-latest
+    needs: frontend-test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: 📥 Install frontend dependencies
+      run: cd frontend && npm ci
+      
+    - name: 🏗️ Build frontend
+      run: cd frontend && npm run build
+      env:
+        REACT_APP_API_URL: https://api.vitality-store.com/api
+        
+    - name: 📦 Upload frontend build
       uses: actions/upload-artifact@v3
       with:
-        name: nextjs-build
-        path: .next
+        name: frontend-build
+        path: frontend/build/
+        retention-days: 1
+
+  # Build Backend
+  build-backend:
+    name: 🏗️ Build Backend
+    runs-on: ubuntu-latest
+    needs: backend-test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: 📥 Install backend dependencies
+      run: cd backend && npm ci
+      
+    - name: 🏗️ Build backend
+      run: cd backend && npm run build
+        
+    - name: 📦 Upload backend build
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-build
+        path: |
+          backend/dist/
+          backend/package.json
+          backend/package-lock.json
         retention-days: 1
 
   # Job de análisis de seguridad

@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vitality-store-db-dev
+    environment:
+      POSTGRES_DB: vitality_store_dev
+      POSTGRES_USER: vitality_user
+      POSTGRES_PASSWORD: vitality_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vitality_user -d vitality_store_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vitality-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: vitality-store-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vitality-network
+
+  # Backend API (Development)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend/Dockerfile.dev
+    container_name: vitality-store-backend-dev
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://vitality_user:vitality_password@postgres:5432/vitality_store_dev
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-key
+      FRONTEND_URL: http://localhost:3000
+      STRIPE_SECRET_KEY: sk_test_your_stripe_secret_key
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your-email@gmail.com
+      EMAIL_PASS: your-email-password
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - vitality-network
+    restart: unless-stopped
+
+  # Frontend React App (Development)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile.dev
+    container_name: vitality-store-frontend-dev
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
+      REACT_APP_STRIPE_PUBLISHABLE_KEY: pk_test_your_stripe_publishable_key
+      CHOKIDAR_USEPOLLING: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - vitality-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
+
+networks:
+  vitality-network:
+    driver: bridge

@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vitality-store-db
+    environment:
+      POSTGRES_DB: vitality_store
+      POSTGRES_USER: vitality_user
+      POSTGRES_PASSWORD: vitality_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/infrastructure/database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vitality_user -d vitality_store"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - vitality-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vitality-store-backend
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://vitality_user:vitality_password@postgres:5432/vitality_store
+      JWT_SECRET: your-super-secret-jwt-key
+      FRONTEND_URL: http://localhost:3000
+      STRIPE_SECRET_KEY: sk_test_your_stripe_secret_key
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your-email@gmail.com
+      EMAIL_PASS: your-email-password
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - vitality-network
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vitality-store-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
+      REACT_APP_STRIPE_PUBLISHABLE_KEY: pk_test_your_stripe_publishable_key
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - vitality-network
+
+  # Nginx Reverse Proxy (Production)
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: vitality-store-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - vitality-network
+    profiles:
+      - production
+
+  # Redis (for caching and sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: vitality-store-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - vitality-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  vitality-network:
+    driver: bridge
